@@ -1,0 +1,76 @@
+openapi: 3.0.1
+info:
+  title: Verification API
+  description: This API allows users to upload and verify JSON files.
+  version: 1.0.0
+
+paths:
+  /api/verify:
+    post:
+      summary: Upload and verify a JSON file
+      tags:
+        - Verification
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The JSON file to be verified.
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      issuer:
+                        type: string
+                        description: The name of the issuer of the file.
+                        example: Accredify
+                      result:
+                        type: string
+                        description: The verification result.
+                        enum: [verified, invalid_recipient, invalid_issuer, invalid_signature]
+                        example: verified
+        '400':
+          description: Invalid request, such as missing issuer information or invalid JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid JSON format
+        '422':
+          description: Validation errors (e.g., file missing, file size too large).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The file is required.
+
+components:
+  schemas:
+    VerificationResult:
+      type: object
+      properties:
+        issuer:
+          type: string
+          description: The name of the issuer of the file.
+        result:
+          type: string
+          description: The verification result.
+          enum: [verified, invalid_recipient, invalid_issuer, invalid_signature]
